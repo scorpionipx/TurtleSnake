@@ -26,12 +26,32 @@ class SnakeGameIPX:
         self.Scheduler = sched.scheduler(time.time, time.sleep)
 
         self.test_counter = 0
+        self.GameState = GAME_STATE_RUNNING
 
         turtle.mainloop()
 
+    def pause_game(self):
+        self.GameState = GAME_STATE_PAUSED
+
+    def resume_game(self):
+        if self.GameState == GAME_STATE_PAUSED:
+            self.GameState = GAME_STATE_RUNNING
+            self.timed_event()
+
+    def pause_resume(self):
+        if self.GameState == GAME_STATE_PAUSED:
+            self.resume_game()
+            return
+
+        if self.GameState == GAME_STATE_RUNNING:
+            self.pause_game()
+            return
+
+
     def timed_event(self):
         self.snake_forward()
-        self.Window.ontimer(self.timed_event, 200)
+        if self.GameState == GAME_STATE_RUNNING:
+            self.Window.ontimer(self.timed_event, 200)
 
     def __init_snake__(self):
         """
@@ -47,10 +67,13 @@ class SnakeGameIPX:
         self.__init_tail__(8)
 
         turtle.listen()
+
         turtle.onkey(self.set_snake_direction_left, "Left")
         turtle.onkey(self.set_snake_direction_right, "Right")
         turtle.onkey(self.set_snake_direction_up, "Up")
         turtle.onkey(self.set_snake_direction_down, "Down")
+
+        turtle.onkey(self.pause_resume, 'p')
 
     def __init_tail__(self, number_of_tail_segment):
         """
